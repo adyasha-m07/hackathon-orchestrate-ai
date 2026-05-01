@@ -8,14 +8,12 @@ from visa import handle_visa_ticket
 
 router = APIRouter()
 
-# ---------- Request Schema ----------
 class TicketRequest(BaseModel):
     product: Literal["hackerrank", "claude", "visa"]
     ticket_id: str
     query: str
     metadata: Dict[str, Any] = {}
 
-# ---------- Response Schema ----------
 class TicketResponse(BaseModel):
     ticket_id: str
     product: str
@@ -24,12 +22,12 @@ class TicketResponse(BaseModel):
     resolution: str
 
 
-# ---------- Main Router ----------
 @router.post("/route")
 def route_ticket(request: TicketRequest):
 
     try:
         data = request.model_dump()
+        print("Incoming:", data)
 
         if request.product == "hackerrank":
             result = handle_hackerrank_ticket(data)
@@ -41,14 +39,15 @@ def route_ticket(request: TicketRequest):
             result = handle_visa_ticket(data)
 
         else:
-            raise HTTPException(status_code=400, detail="Invalid product type")
+            raise HTTPException(status_code=400, detail="Invalid product")
 
-        # safety check
+        print("Result:", result)
+
         if not result:
-            raise HTTPException(status_code=500, detail="Empty response from handler")
+            raise HTTPException(status_code=500, detail="Empty response")
 
-        # strict response formatting
         return TicketResponse(**result).model_dump()
 
     except Exception as e:
+        print("ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
