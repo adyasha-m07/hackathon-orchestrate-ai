@@ -1,0 +1,9 @@
+User Ticket
+   ↓
+Classifier (AI model / rules)
+   ↓
+Router
+   ↓
+Handlers (HackerRank / Claude / Visa)
+   ↓
+Final Response
