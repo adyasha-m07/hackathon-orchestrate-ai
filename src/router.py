@@ -27,7 +27,7 @@ def route_ticket(request: TicketRequest):
 
     try:
         data = request.model_dump()
-        print("Incoming:", data)
+        print("Handler selected:", request.product)
 
         if request.product == "hackerrank":
             result = handle_hackerrank_ticket(data)
