@@ -1,4 +1,5 @@
 def handle_hackerrank_ticket(data):
+    print("Hackerrank handler running")
     query = data["query"].lower()
 
     if "submit" in query:
