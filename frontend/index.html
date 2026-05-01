@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Ticket Router</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .box {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 12px;
+            width: 400px;
+            margin: auto;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+        }
+
+        input, select, textarea {
+            width: 90%;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid gray;
+        }
+
+        button {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1e3c72;
+        }
+
+        #output {
+            margin-top: 20px;
+            text-align: left;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 8px;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🚀 AI Support Ticket Router</h1>
+
+    <div class="box">
+        <input id="ticket_id" placeholder="Ticket ID (e.g. T101)" />
+
+        <select id="product">
+            <option value="hackerrank">HackerRank</option>
+            <option value="claude">Claude</option>
+            <option value="visa">Visa</option>
+        </select>
+
+        <textarea id="query" placeholder="Enter your issue..."></textarea>
+
+        <button onclick="sendTicket()">Submit</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        async function sendTicket() {
+            const data = {
+                product: document.getElementById("product").value,
+                ticket_id: document.getElementById("ticket_id").value,
+                query: document.getElementById("query").value,
+                metadata: {}
+            };
+
+            document.getElementById("output").innerHTML = "⏳ Processing...";
+
+            try {
+                const res = await fetch("http://127.0.0.1:8000/route", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                document.getElementById("output").innerHTML =
+                    "<b>Category:</b> " + result.category + "<br>" +
+                    "<b>Priority:</b> " + result.priority + "<br>" +
+                    "<b>Resolution:</b> " + result.resolution;
+
+            } catch (error) {
+                document.getElementById("output").innerHTML =
+                    "❌ Error connecting to backend";
+            }
+        }
+    </script>
+
+</body>
+</html>
