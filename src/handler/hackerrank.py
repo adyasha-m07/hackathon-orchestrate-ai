@@ -1,18 +1,25 @@
-def handle_hackerrank(ticket):
-    return f"""
-🧠 HackerRank Agent Response:
+def handle_hackerrank_ticket(data):
+    query = data["query"].lower()
 
-We detected a coding/platform issue.
+    if "submit" in query:
+        category = "submission_issue"
+        priority = "high"
+        resolution = "Try refreshing the page and re-submitting your code."
 
-Ticket Analysis:
-- Issue Type: Coding/Submission Problem
-- Suggested Fix:
-  ✔ Check compiler settings
-  ✔ Validate input format
-  ✔ Re-run test cases
+    elif "test case" in query:
+        category = "test_case_issue"
+        priority = "medium"
+        resolution = "Check edge cases and input format."
 
-Auto-Solution:
-Try clearing cache and resubmitting your solution.
+    else:
+        category = "general"
+        priority = "low"
+        resolution = "Refer to help center."
 
-Raw Ticket: {ticket}
-"""
+    return {
+        "ticket_id": data["ticket_id"],
+        "product": "hackerrank",
+        "category": category,
+        "priority": priority,
+        "resolution": resolution
+    }
