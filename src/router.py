@@ -5,50 +5,49 @@ from src.handlers.claude import handle_claude
 from src.handlers.visa import handle_visa
 
 
-def route_ticket(ticket):
+def route_ticket(ticket: dict):
     """
-    OrchestrateAI Core Router
-    -------------------------
-    Takes an incoming support ticket,
-    classifies intent, and routes it to the correct system handler.
+    Main router:
+    1. Classify ticket
+    2. Check confidence
+    3. Route to correct handler
     """
 
-    # Combine text fields for better classification
-    text = f"{ticket.get('Subject', '')} {ticket.get('Issue', '')}"
+    # Combine fields into one text blob
+    text = f"{ticket.get('Company', '')} {ticket.get('Subject', '')} {ticket.get('Issue', '')}"
 
-    # Step 1: classify intent (AI-style logic)
-    intent = classify_ticket(text)
+    # Step 1: classify
+    result = classify_ticket(text)
 
-    # Step 2: identify target company system
-    company = ticket.get("Company", "").strip()
+    category = result["category"]
+    confidence = result["confidence"]
 
-    # Step 3: routing map (clean + scalable design)
-    handlers = {
-        "HackerRank": handle_hackerrank,
-        "Claude": handle_claude,
-        "Visa": handle_visa
-    }
+    print(f"\n🔍 Classified as: {category} (confidence: {confidence})")
 
-    handler = handlers.get(company)
-
-    # Step 4: fallback for unknown systems
-    if handler is None:
+    # Step 2: low confidence fallback
+    if confidence < 0.5:
         return {
-            "status": "error",
-            "message": "Unknown company system",
-            "intent": intent,
-            "route": None
+            "category": "escalation",
+            "response": "Escalate to human support due to low confidence classification.",
+            "confidence": confidence
         }
 
-    # Step 5: process ticket through selected handler
-    response = handler(ticket, intent)
+    # Step 3: route to correct handler
+    if category == "hackerrank":
+        response = handle_hackerrank(ticket)
 
-    # Step 6: return structured AI output
+    elif category == "claude":
+        response = handle_claude(ticket)
+
+    elif category == "visa":
+        response = handle_visa(ticket)
+
+    else:
+        response = "No handler found for this category."
+
+    # Step 4: structured output
     return {
-        "input_ticket": ticket,
-        "intent": intent,
-        "routed_to": company,
-        "response": response,
-        "system": "OrchestrateAI-v1",
-        "confidence": "high"
+        "category": category,
+        "confidence": confidence,
+        "response": response
     }
