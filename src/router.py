@@ -1,53 +1,54 @@
-from src.classifier import classify_ticket
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import Literal, Dict, Any
 
-from src.handlers.hackerrank import handle_hackerrank
-from src.handlers.claude import handle_claude
-from src.handlers.visa import handle_visa
+from hackerrank import handle_hackerrank_ticket
+from claude import handle_claude_ticket
+from visa import handle_visa_ticket
+
+router = APIRouter()
+
+# ---------- Request Schema ----------
+class TicketRequest(BaseModel):
+    product: Literal["hackerrank", "claude", "visa"]
+    ticket_id: str
+    query: str
+    metadata: Dict[str, Any] = {}
+
+# ---------- Response Schema ----------
+class TicketResponse(BaseModel):
+    ticket_id: str
+    product: str
+    category: str
+    priority: str
+    resolution: str
 
 
-def route_ticket(ticket: dict):
-    """
-    Main router:
-    1. Classify ticket
-    2. Check confidence
-    3. Route to correct handler
-    """
+# ---------- Main Router ----------
+@router.post("/route")
+def route_ticket(request: TicketRequest):
 
-    # Combine fields into one text blob
-    text = f"{ticket.get('Company', '')} {ticket.get('Subject', '')} {ticket.get('Issue', '')}"
+    try:
+        data = request.model_dump()
 
-    # Step 1: classify
-    result = classify_ticket(text)
+        if request.product == "hackerrank":
+            result = handle_hackerrank_ticket(data)
 
-    category = result["category"]
-    confidence = result["confidence"]
+        elif request.product == "claude":
+            result = handle_claude_ticket(data)
 
-    print(f"\n🔍 Classified as: {category} (confidence: {confidence})")
+        elif request.product == "visa":
+            result = handle_visa_ticket(data)
 
-    # Step 2: low confidence fallback
-    if confidence < 0.5:
-        return {
-            "category": "escalation",
-            "response": "Escalate to human support due to low confidence classification.",
-            "confidence": confidence
-        }
+        else:
+            raise HTTPException(status_code=400, detail="Invalid product type")
 
-    # Step 3: route to correct handler
-    if category == "hackerrank":
-        response = handle_hackerrank(ticket)
+        # safety check
+        if not result:
+            raise HTTPException(status_code=500, detail="Empty response from handler")
 
-    elif category == "claude":
-        response = handle_claude(ticket)
+        # strict response formatting
+        return TicketResponse(**result).model_dump()
 
-    elif category == "visa":
-        response = handle_visa(ticket)
-
-    else:
-        response = "No handler found for this category."
-
-    # Step 4: structured output
-    return {
-        "category": category,
-        "confidence": confidence,
-        "response": response
-    }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
