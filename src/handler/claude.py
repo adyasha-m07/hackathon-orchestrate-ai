@@ -1,17 +1,20 @@
-def handle_claude(ticket):
-    return f"""
-🧠 Claude Agent Response:
+def handle_claude_ticket(data):
+    query = data["query"].lower()
 
-This appears to be an LLM-related query.
+    if "limit" in query:
+        category = "rate_limit"
+        priority = "high"
+        resolution = "You have exceeded usage limits. Please wait and retry."
 
-Insights:
-- Model Issue / Chat behavior detected
-- Suggest checking prompt structure
+    else:
+        category = "general"
+        priority = "low"
+        resolution = "Check documentation."
 
-Recommendations:
-✔ Rephrase prompt clearly
-✔ Reduce ambiguity
-✔ Try temperature tuning if API-based
-
-Raw Ticket: {ticket}
-"""
+    return {
+        "ticket_id": data["ticket_id"],
+        "product": "claude",
+        "category": category,
+        "priority": priority,
+        "resolution": resolution
+    }
