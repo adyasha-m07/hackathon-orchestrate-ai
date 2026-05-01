@@ -1,18 +1,20 @@
-def handle_visa(ticket):
-    return f"""
-🧠 Visa Agent Response:
+def handle_visa_ticket(data):
+    query = data["query"].lower()
 
-We detected a financial/payment issue.
+    if "payment" in query:
+        category = "payment_issue"
+        priority = "high"
+        resolution = "Check your card details or contact your bank."
 
-Diagnosis:
-- Transaction / Card-related query
+    else:
+        category = "general"
+        priority = "low"
+        resolution = "Contact support."
 
-Suggested Actions:
-✔ Verify card details
-✔ Check bank authorization
-✔ Retry transaction after 5 mins
-
-If issue persists, escalate to banking support.
-
-Raw Ticket: {ticket}
-"""
+    return {
+        "ticket_id": data["ticket_id"],
+        "product": "visa",
+        "category": category,
+        "priority": priority,
+        "resolution": resolution
+    }
