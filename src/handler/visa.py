@@ -1,20 +1,27 @@
 def handle_visa_ticket(data):
-    query = data["query"].lower()
+
+    query = ticket["query"].lower()
 
     if "payment" in query:
         category = "payment_issue"
         priority = "high"
-        resolution = "Check your card details or contact your bank."
+        resolution = "Check card details or bank authorization"
+
+    elif "declined" in query:
+        category = "transaction_declined"
+        priority = "high"
+        resolution = "Contact bank or retry transaction"
 
     else:
-        category = "general"
-        priority = "low"
-        resolution = "Contact support."
+        category = "general_issue"
+        priority = "medium"
+        resolution = "Refer to Visa support portal"
 
     return {
-        "ticket_id": data["ticket_id"],
+        "ticket_id": ticket["ticket_id"],
         "product": "visa",
         "category": category,
         "priority": priority,
         "resolution": resolution
     }
+    
