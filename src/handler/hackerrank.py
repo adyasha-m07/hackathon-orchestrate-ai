@@ -1,21 +1,22 @@
-def handle_hackerrank_ticket(data):
+def handle_hackerrank_ticket(data): 
     print("Hackerrank handler running")
+
     query = data["query"].lower()
 
     if "submit" in query:
         category = "submission_issue"
         priority = "high"
-        resolution = "Try refreshing the page and re-submitting your code."
+        resolution = "Check submission button or internet connection"
 
-    elif "test case" in query:
-        category = "test_case_issue"
+    elif "compile" in query:
+        category = "compilation_error"
         priority = "medium"
-        resolution = "Check edge cases and input format."
+        resolution = "Check code syntax and language runtime"
 
     else:
-        category = "general"
+        category = "general_issue"
         priority = "low"
-        resolution = "Refer to help center."
+        resolution = "Refer to HackerRank support docs"
 
     return {
         "ticket_id": data["ticket_id"],
