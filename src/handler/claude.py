@@ -1,18 +1,24 @@
 def handle_claude_ticket(data):
-    query = data["query"].lower()
 
-    if "limit" in query:
-        category = "rate_limit"
+    query = ticket["query"].lower()
+
+    if "api" in query:
+        category = "api_issue"
         priority = "high"
-        resolution = "You have exceeded usage limits. Please wait and retry."
+        resolution = "Check API key and rate limits"
+
+    elif "response" in query:
+        category = "response_issue"
+        priority = "medium"
+        resolution = "Check prompt formatting"
 
     else:
-        category = "general"
+        category = "general_issue"
         priority = "low"
-        resolution = "Check documentation."
+        resolution = "Refer to Claude documentation"
 
     return {
-        "ticket_id": data["ticket_id"],
+        "ticket_id": ticket["ticket_id"],
         "product": "claude",
         "category": category,
         "priority": priority,
