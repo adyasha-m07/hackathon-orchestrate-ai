@@ -1,111 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Ticket Router</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: linear-gradient(to right, #1e3c72, #2a5298);
-            color: white;
-            text-align: center;
-            padding: 40px;
-        }
+<meta charset="UTF-8">
+<title>AI Ticket Router</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
 
-        .box {
-            background: white;
-            color: black;
-            padding: 20px;
-            border-radius: 12px;
-            width: 400px;
-            margin: auto;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-        input, select, textarea {
-            width: 90%;
-            margin: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid gray;
-        }
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
 
-        button {
-            background: #2a5298;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
+.container {
+    width: 420px;
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: fadeIn 0.8s ease;
+}
 
-        button:hover {
-            background: #1e3c72;
-        }
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
 
-        #output {
-            margin-top: 20px;
-            text-align: left;
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 8px;
-            color: black;
-        }
-    </style>
+label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 15px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+textarea {
+    resize: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #22c55e;
+}
+
+.output {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.3);
+    min-height: 80px;
+    font-size: 14px;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
 </head>
 
 <body>
 
-    <h1>🚀 AI Support Ticket Router</h1>
+<div class="container">
+    <h1>🎯 AI Ticket Router</h1>
 
-    <div class="box">
-        <input id="ticket_id" placeholder="Ticket ID (e.g. T101)" />
+    <label>Product</label>
+    <select id="product">
+        <option value="hackerrank">HackerRank</option>
+        <option value="claude">Claude</option>
+        <option value="visa">Visa</option>
+    </select>
 
-        <select id="product">
-            <option value="hackerrank">HackerRank</option>
-            <option value="claude">Claude</option>
-            <option value="visa">Visa</option>
-        </select>
+    <label>Ticket ID</label>
+    <input type="text" id="ticket_id" placeholder="T101">
 
-        <textarea id="query" placeholder="Enter your issue..."></textarea>
+    <label>Query</label>
+    <textarea id="query" rows="3" placeholder="Describe your issue..."></textarea>
 
-        <button onclick="sendTicket()">Submit</button>
+    <button onclick="sendRequest()">🚀 Analyze Ticket</button>
 
-        <div id="output"></div>
+    <div class="output" id="output">
+        Waiting for input...
     </div>
+</div>
 
-    <script>
-        async function sendTicket() {
-            const data = {
-                product: document.getElementById("product").value,
-                ticket_id: document.getElementById("ticket_id").value,
-                query: document.getElementById("query").value,
-                metadata: {}
-            };
+<script>
+async function sendRequest() {
+    const product = document.getElementById("product").value;
+    const ticket_id = document.getElementById("ticket_id").value;
+    const query = document.getElementById("query").value;
+    const output = document.getElementById("output");
 
-            document.getElementById("output").innerHTML = "⏳ Processing...";
-
-            try {
-                const res = await fetch("http://127.0.0.1:8000/route", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await res.json();
-
-                document.getElementById("output").innerHTML =
-                    "<b>Category:</b> " + result.category + "<br>" +
-                    "<b>Priority:</b> " + result.priority + "<br>" +
-                    "<b>Resolution:</b> " + result.resolution;
-
-            } catch (error) {
-                document.getElementById("output").innerHTML =
-                    "❌ Error connecting to backend";
-            }
+    // output.innerHTML = "⏳ Processing...";
+    function typeEffect(text, element, speed = 20) {
+    element.innerHTML = "";
+    let i = 0;
+    function typing() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typing, speed);
         }
-    </script>
+    }
+    typing();
+}
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/route", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                product,
+                ticket_id,
+                query,
+                metadata: {}
+            })
+        });
+
+        const data = await res.json();
+
+        output.innerHTML = `
+            <b>📌 Ticket:</b> ${data.ticket_id}<br>
+            <b>📦 Product:</b> ${data.product}<br>
+            <b>🧠 Category:</b> ${data.category}<br>
+            <b>⚡ Priority:</b> ${data.priority}<br>
+            <b>💡 Resolution:</b> ${data.resolution}
+        `;
+
+    } catch (err) {
+        output.innerHTML = "❌ Backend not reachable";
+    }
+}
+</script>
 
 </body>
 </html>
